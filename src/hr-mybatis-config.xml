@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+	PUBLIC "-//mybatis.org/DTD config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.somecompany.model.hr.Employee" alias="Employee" />
+		<typeAlias type="com.somecompany.model.hr.Workplace" alias="Workplace" />
+		<typeAlias type="com.somecompany.model.hr.JobHistory" alias="JobHistory" />
+		<typeAlias type="com.somecompany.model.hr.Authority" alias="Authority" />
+		<typeAlias type="com.somecompany.model.hr.ProfilePicture" alias="ProfilePicture" />
+	</typeAliases>
+	
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+				<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:Oracle" />
+				<property name="username" value="hr" />
+				<property name="password" value="hr" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<mapper resource="com/somecompany/repository/mapper/EmployeeMapper.xml" />
+		<mapper resource="com/somecompany/repository/mapper/SecurityMapper.xml" />
+		<mapper resource="com/somecompany/repository/mapper/ProfilePictureMapper.xml" />
+	</mappers>
+</configuration>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.somecompany.repository.mapper.EmployeeMapper">
+	
+	<!-- sql statements -->
+	
+	<select id="selectCount0" resultType="int">
+		SELECT COUNT(*) FROM employees
+	</select>
+	
+	<select id="selectCount1" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM employees WHERE department_id = #{departmentId}
+	</select>
+	
+	<select id="selectCount2" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM employees WHERE job_id = #{JobId}
+	</select>
+	
+	<select id="selectCount3" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM employees 
+		WHERE (first_name LIKE '%' || #{name} || '%'
+			OR last_name LIKE '%' || #{name} || '%')
+	</select>
+	
+	<select id="selectBasic" parameterType="int" resultMap="BasicResultMap">
+		SELECT * FROM employees emp, jobs j, departments d, profile_pic p
+		WHERE emp.job_id = j.job_id (+)
+			AND emp.department_id = d.department_id (+)
+			AND emp.employee_id = p.employee_id (+)
+			AND emp.employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectEmployeeName" parameterType="int" resultType="String">
+		SELECT first_name || ' ' || last_name FROM employees 
+		WHERE employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectEmployeeWorkspace" parameterType="int" 
+			resultMap="WorkpalceResultMap">
+		SELECT dep.department_name , locs.street_address, locs.city,
+				locs.state_province, cont.country_name, reg.region_name 
+		FROM employees emp, departments dep, locations locs, 
+				countries cont, regions reg 
+		WHERE emp.department_id = dep.department_id 
+				AND dep.location_id = locs.location_id 
+				AND cont.country_id = locs.country_id 
+				AND cont.region_id = reg.region_id 
+				AND emp.employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectEmployeeJobHistory" parameterType="int" 
+			resultMap="JobHistoryResultMap">
+		SELECT 
+			h.start_date, h.end_date, 
+			j.job_title, d.department_name
+		FROM job_history h, jobs j, departments d 
+		WHERE h.job_id = j.job_id
+			AND h.department_id = d.department_id
+			AND h.employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectList" resultMap="BasicResultMap">
+		SELECT * FROM employees emp, jobs j, departments d
+		WHERE emp.job_id = j.job_id (+)
+			AND emp.department_id = d.department_id (+)
+		ORDER BY emp.employee_id
+	</select>
+	
+	<select id="selectListByDep" parameterType="int" resultMap="BasicResultMap">
+		SELECT * FROM employees emp, jobs j, departments d
+		WHERE emp.job_id = j.job_id (+)
+			AND emp.department_id = d.department_id (+)
+			AND emp.department_id = #{departmentId}
+		ORDER BY emp.employee_id
+	</select>
+	
+	<select id="selectListByJob" parameterType="String" resultMap="BasicResultMap">
+		SELECT * FROM employees emp, jobs j, departments d
+		WHERE emp.job_id = j.job_id (+)
+			AND emp.department_id = d.department_id (+)
+			AND emp.job_id = #{job_id}
+		ORDER BY emp.employee_id
+	</select>
+	
+	<select id="selectListByName" parameterType="String" resultMap="BasicResultMap">
+		SELECT * FROM employees emp, jobs j, departments d
+		WHERE emp.job_id = j.job_id (+)
+			AND emp.department_id = d.department_id (+)
+			AND (emp.first_name LIKE '%' || #{name} || '%'
+			OR emp.last_name LIKE '%' || #{name} || '%')
+		ORDER BY emp.employee_id
+	</select>
+	
+	<select id="selectMaxId" resultType="int">
+		SELECT MAX(employee_id) FROM employees
+	</select>
+	
+	<select id="selectMinId" resultType="int">
+		SELECT MIN(employee_id) FROM employees
+	</select>
+	
+	<select id="selectDepMaxId" resultType="int">
+		SELECT MAX(department_id) FROM departments
+	</select>
+	
+	<select id="selectDepMinId" resultType="int">
+		SELECT MIN(department_id) FROM departments
+	</select>
+	
+	<insert id="insert" parameterType="Employee">
+		INSERT INTO employees
+			(employee_id, first_name, last_name, email, 
+			phone_number, hire_date, job_id, salary, 
+			commission_pct, manager_id, department_id) 
+		VALUES (employees_seq.nextval, #{firstName}, #{lastName}, #{email}, 
+			#{phoneNumber}, #{hireDate}, #{jobId}, #{salary}, 
+			#{commissionPct}, #{managerId}, #{departmentId})
+	</insert>
+	
+	<update id="updateNoChange" parameterType="Employee">
+		UPDATE employees SET first_name = #{firstName}, last_name = #{lastName}, 
+			email = #{email}, phone_number = #{phoneNumber}, hire_date = #{hireDate}, 
+			salary = #{salary}, commission_pct = #{commissionPct}, manager_id = #{managerId},
+			password = #{password}, profile_comment = #{profileComment} WHERE employee_id = #{employeeId}
+	</update>
+	
+	<update id="update" parameterType="Employee">
+		UPDATE employees SET first_name = #{firstName}, last_name = #{lastName}, 
+			email = #{email}, phone_number = #{phoneNumber}, hire_date = SYSDATE, 
+			job_id = #{jobId}, salary = #{salary}, commission_pct = #{commissionPct}, 
+			manager_id = #{managerId}, department_id = #{departmentId},
+			password = #{password} WHERE employee_id = #{employeeId}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM employees WHERE employee_id = #{employeeId} 
+	</delete>
+	
+	<delete id="deleteJobHistory" parameterType="int">
+		DELETE FROM job_history WHERE employee_id = #{employeeId} 
+	</delete>
+	
+	<select id="selectSalaryMinMax" parameterType="String" 
+			resultMap="SalaryResultMap">
+		SELECT min_salary, max_salary FROM jobs WHERE job_id = #{jobId}
+	</select>
+	
+	<!-- ResultMaps -->
+	
+	<resultMap id="BasicResultMap" type="Employee">
+		<id column="employee_id" jdbcType="INTEGER" property="employeeId" />
+		<result column="first_name" jdbcType="VARCHAR" property="firstName" />
+		<result column="last_name" jdbcType="VARCHAR" property="lastName" />
+		<result column="email" jdbcType="VARCHAR" property="email" />
+		<result column="phone_number" jdbcType="VARCHAR" property="phoneNumber" />
+		<result column="hire_date" jdbcType="DATE" property="hireDate" />
+		<result column="job_id" jdbcType="VARCHAR" property="jobId" />
+		<result column="salary" jdbcType="DOUBLE" property="salary" />
+		<result column="commission_pct" jdbcType="FLOAT" property="commissionPct" />
+		<result column="manager_id" jdbcType="INTEGER" property="managerId" />
+		<result column="department_id" jdbcType="INTEGER" property="departmentId" />
+		<result column="password" jdbcType="VARCHAR" property="password" />
+		<result column="job_title" jdbcType="VARCHAR" property="jobTitle" />
+		<result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+		<result column="profile_comment" jdbcType="NVARCHAR" property="profileComment" />
+		<result column="pic_file_name" jdbcType="VARCHAR" property="profilePictureName" />
+	</resultMap>
+	
+	<resultMap id="WorkpalceResultMap" type="Workplace">
+		<result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+		<result column="street_address" jdbcType="VARCHAR" property="streetAddress" />
+		<result column="city" jdbcType="VARCHAR" property="city" />
+		<result column="state_province" jdbcType="VARCHAR" property="stateProvince" />
+		<result column="country_name" jdbcType="VARCHAR" property="countryName" />
+		<result column="region_name" jdbcType="VARCHAR" property="regionName" />
+	</resultMap>
+	
+	<resultMap id="JobHistoryResultMap" type="JobHistory">
+		<result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+		<result column="start_date" jdbcType="VARCHAR" property="startDate" />
+		<result column="end_date" jdbcType="VARCHAR" property="endDate" />
+		<result column="job_title" jdbcType="VARCHAR" property="jobTitle" />
+	</resultMap>
+	
+	<resultMap id="SalaryResultMap" 
+				type="com.somecompany.model.hr.SalaryMinMax">
+		<result column="min_salary" jdbcType="DOUBLE" property="minSalary" />
+		<result column="max_salary" jdbcType="DOUBLE" property="maxSalary" />
+	</resultMap>
+</mapper>

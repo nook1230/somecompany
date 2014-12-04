@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.somecompany.repository.mapper.SecurityMapper">
+	<!-- sql statements -->
+	
+	<select id="selectCount" resultType="int">
+		SELECT COUNT(*) FROM grant_auth
+	</select>
+	
+	<select id="selectCountById" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM grant_auth WHERE employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectAuthority" parameterType="int" resultType="String">
+		SELECT a.authority_title FROM authority a, grant_auth g
+		WHERE a.authority_id = g.authority_id AND g.employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectList" resultMap="AuthorityResultMap">
+		SELECT g.employee_id, a.authority_title, 
+			e.first_name || ' ' || e.last_name employee_name
+		FROM authority a, grant_auth g, employees e
+		WHERE a.authority_id = g.authority_id
+			AND e.employee_id = g.employee_id
+	</select>
+	
+	<select id="selectPassword" parameterType="int" resultType="String">
+		SELECT password FROM employees WHERE employee_id = #{employeeId}
+	</select>
+	
+	<select id="selectLoginCheck" parameterType="Employee" resultType="int">
+		SELECT COUNT(*) FROM employees 
+		WHERE employee_id = #{employeeId} AND password = #{password}
+	</select>
+	
+	<insert id="insertAuthority" parameterType="Authority">
+		INSERT INTO grant_auth VALUES (#{employeeId}, #{authorityId})
+	</insert>
+	
+	<update id="updateAuthority" parameterType="Authority">
+		UPDATE grant_auth SET authority_id = #{authorityId} WHERE employee_id = #{employeeId}
+	</update>
+	
+	<delete id="deleteAuthority" parameterType="int">
+		DELETE FROM grant_auth WHERE employee_id = #{employeeId}
+	</delete>
+	
+	<!-- ResultMaps -->
+	<resultMap id="AuthorityResultMap" type="Authority">
+		<id column="employee_id" jdbcType="INTEGER" property="employeeId" />
+		<result column="employee_name" jdbcType="VARCHAR" property="employeeName" />
+		<result column="authority_title" jdbcType="VARCHAR" property="authorityTitle" />
+	</resultMap>
+</mapper>

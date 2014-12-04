@@ -1,0 +1,17 @@
+
+table {
+	border-collapse: collapse;
+}
+
+td {
+	border: 1px solid black;
+	padding: 5px;
+}
+
+#search {
+	margin-top: 15px;	
+}
+
+#page_list {
+	margin-top: 15px;
+}

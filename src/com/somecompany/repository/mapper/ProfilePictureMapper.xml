@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.somecompany.repository.mapper.ProfilePictureMapper">
+	<!-- sql statements -->
+	
+	<select id="selectById" parameterType="int" resultMap="BasicResultMap">
+		SELECT * FROM profile_pic WHERE employee_id = #{employeeId}
+	</select>
+	
+	<insert id="insert" parameterType="ProfilePicture">
+		INSERT INTO profile_pic VALUES 
+		(PROFILE_PICTURE_SEQ.NEXTVAL, #{employeeId}, #{pictureFileName})
+	</insert>
+	
+	<update id="update" parameterType="ProfilePicture">
+		UPDATE profile_pic SET pic_file_name = #{pictureFileName}
+		WHERE employee_id = #{employeeId}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM profile_pic WHERE employee_id = #{employeeId}		
+	</delete>
+	
+	
+	<!-- ResultMaps -->
+	
+	<resultMap id="BasicResultMap" type="ProfilePicture">
+		<id column="profile_pic_id" jdbcType="INTEGER" property="profilePictureId" />
+		<result column="employee_id" jdbcType="INTEGER" property="employeeId" />
+		<result column="pic_file_name" jdbcType="VARCHAR" property="pictureFileName" />
+	</resultMap>
+</mapper>

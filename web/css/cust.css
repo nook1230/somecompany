@@ -1,0 +1,41 @@
+#main {
+	width: 1000px;
+	min-height: 500px;
+	text-align: center;
+	padding-bottom: 10px;
+	border: 1px solid silver;
+}
+
+#cust_toolbar {
+	width: 1000px;
+	height: 50px;
+	background-color: # ;
+}
+
+#cust_nav {
+	float: right;
+}
+
+#cust_nav ul {
+	margin: 0px;
+	padding: 0px;
+	padding-right: 10px;
+	list-style: none;
+}
+
+#cust_nav li {
+	float: left;
+	padding: 5px;
+}
+
+
+.soldout {
+	font-size: 8pt;
+	color: orange;
+}
+
+
+#page_list {
+	margin-top: 15px;
+	margin-bottom: 20px;
+}

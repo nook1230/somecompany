@@ -1,0 +1,105 @@
+/*****************************************************/
+/*          일반적으로 적용되는 스타일을 위한 CSS               */
+/*****************************************************/
+
+*{
+	
+}
+
+body {
+	font-family: "Malgun Gothic", "굴림", "Gulim", "Arial";
+	font-size: 10pt;
+}
+
+#allcontent {
+	width: 1020px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/*****************************************************/
+
+#header {
+	width: 1000px;
+	height: 100px;
+	/*background-color: #E6E6FA;*/
+	margin-bottom: 10px;
+	font-size: 10pt;
+	border: 1px solid silver;
+}
+
+#titlebar {
+	width: 930px;
+	height: 30px;
+	padding-left: 20px;
+}
+
+#login {
+	float: right;
+}
+
+#nav {
+	width: 880px;
+	text-align: center;
+}
+
+#nav ul {
+	list-style: none;
+}
+
+#nav li {
+	float: left;
+	padding: 10px;
+}
+
+/*****************************************************/
+
+#main {
+	width: 1000px;
+	min-height: 500px;
+	text-align: center;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	border: 1px solid silver;
+	/*background-color: #E6E6FA;*/
+}
+
+/*****************************************************/
+
+#footer {
+	width: 1000px;
+	height: 80px;
+	margin-top: 10px;
+	padding-top: 15px;
+	text-align: center;
+	/*background-color: #E6E6FA;*/
+	border: 1px solid silver;
+}
+
+
+/*****************************************************/
+
+a:visited {
+	color: #696969;
+	text-decoration: none; 
+}
+
+a:link {
+	color: #696969;
+	text-decoration: none; 
+}
+
+a:hoover {
+	color: #696969;
+	text-decoration: none; 
+}
+
+/*****************************************************/
+
+.selected {
+	font-weight: bold;
+}
+
+.very_small_font {
+	font-size: 8pt;
+}

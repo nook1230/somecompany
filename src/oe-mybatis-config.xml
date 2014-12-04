@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+	PUBLIC "-//mybatis.org/DTD config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+	
+<configuration>
+
+	<typeAliases>
+	
+		<typeAlias type="com.somecompany.model.oe.Order" alias="Order" />
+		<typeAlias type="com.somecompany.model.oe.OrderItem" alias="OrderItem" />
+		<typeAlias type="com.somecompany.model.oe.Warehouse" alias="Warehouse" />
+		
+		<typeAlias type="com.somecompany.model.oe.Customer" alias="Customer" />
+					
+	</typeAliases>
+	
+	<typeHandlers>
+  		<typeHandler handler="com.somecompany.repository.mapper.typehandler.TimestampTypeHandler"/>
+	</typeHandlers>
+	
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+				<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:Oracle" />
+				<property name="username" value="oe" />
+				<property name="password" value="oe" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<mapper resource="com/somecompany/repository/mapper/OrderMapper.xml" />
+		<mapper resource="com/somecompany/repository/mapper/CustomerMapper.xml" />
+	</mappers>
+
+</configuration>
+

@@ -1,0 +1,9 @@
+#manager_nav {
+	text-align: right;
+}
+
+#manager_nav span {
+	padding: 10px;
+	margin: 5px;
+	font-style: underline;
+}

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.somecompany.repository.mapper.CustomerMapper">
+	<!-- sql statements -->
+	
+	<select id="selectCustomer" parameterType="int" resultMap="customerResultMap">
+		SELECT customer_id, cust_user_name, cust_first_name, cust_last_name,
+			cust.cust_address.street_address street_addr, 
+			cust.cust_address.city city,
+			cust.cust_address.state_province province, 
+			cust.cust_address.country_id country_id, 
+			cust.cust_address.postal_code postal_code,
+			get_phone_number_f(1, cust.phone_numbers) phone_number,
+			nls_language, nls_territory, credit_limit, cust_email,
+			account_mgr_id, date_of_birth, marital_status, gender, income_level
+		FROM customers cust WHERE customer_id = #{customerId}
+	</select>
+	
+	<select id="selectCount" resultType="int">
+		SELECT count(*) FROM customers
+	</select>
+	
+	<select id="selectCountByFName" resultType="int">
+		SELECT count(*) FROM customers 
+		WHERE cust_first_name LIKE '%' || #{keyword} || '%'
+	</select>
+	
+	<select id="selectCountByLName" resultType="int">
+		SELECT count(*) FROM customers 
+		WHERE cust_last_name LIKE '%' || #{keyword} || '%'
+	</select>
+	
+	<select id="selectCountByEmail" resultType="int">
+		SELECT count(*) FROM customers 
+		WHERE cust_email LIKE '%' || #{keyword} || '%'
+	</select>
+	
+	<select id="selectCountByAll" resultType="int">
+		SELECT count(*) FROM customers 
+		WHERE cust_first_name LIKE '%' || #{keyword} || '%' OR
+			cust_last_name LIKE '%' || #{keyword} || '%' OR
+			cust_email LIKE '%' || #{keyword} || '%'
+	</select>
+	
+	<select id="selectList" resultMap="customerListResultMap">
+		SELECT customer_id, cust_first_name, cust_last_name,
+				cust.cust_address.street_address street_addr, 
+				cust.cust_address.city city,
+				cust.cust_address.state_province province, 
+				cust.cust_address.country_id country_id, 
+				cust.cust_address.postal_code postal_code,
+				cust_email, get_phone_number_f(1, cust.phone_numbers) phone_number
+		FROM customers cust ORDER BY customer_id 
+	</select>
+	
+	<select id="selectListByFName" parameterType="String" resultMap="customerListResultMap">
+		SELECT customer_id, cust_first_name, cust_last_name,
+				cust.cust_address.street_address street_addr, 
+				cust.cust_address.city city,
+				cust.cust_address.state_province province, 
+				cust.cust_address.country_id country_id, 
+				cust.cust_address.postal_code postal_code,
+				cust_email, get_phone_number_f(1, cust.phone_numbers) phone_number
+		FROM customers cust WHERE cust_first_name LIKE '%' || #{keyword} || '%' ORDER BY customer_id
+	</select>
+	
+	<select id="selectListByLName" parameterType="String" resultMap="customerListResultMap">
+		SELECT customer_id, cust_first_name, cust_last_name,
+				cust.cust_address.street_address street_addr, 
+				cust.cust_address.city city,
+				cust.cust_address.state_province province, 
+				cust.cust_address.country_id country_id, 
+				cust.cust_address.postal_code postal_code,
+				cust_email, get_phone_number_f(1, cust.phone_numbers) phone_number
+		FROM customers cust WHERE cust_last_name LIKE '%' || #{keyword} || '%' ORDER BY customer_id
+	</select>
+	
+	<select id="selectListByEmail" parameterType="String" resultMap="customerListResultMap">
+		SELECT customer_id, cust_first_name, cust_last_name,
+				cust.cust_address.street_address street_addr, 
+				cust.cust_address.city city,
+				cust.cust_address.state_province province, 
+				cust.cust_address.country_id country_id, 
+				cust.cust_address.postal_code postal_code,
+				cust_email, get_phone_number_f(1, cust.phone_numbers) phone_number
+		FROM customers cust WHERE cust_email LIKE '%' || #{keyword} || '%'  ORDER BY customer_id
+	</select>
+	
+	<select id="selectListByAll" parameterType="String" resultMap="customerListResultMap">
+		SELECT customer_id, cust_first_name, cust_last_name,
+				cust.cust_address.street_address street_addr, 
+				cust.cust_address.city city,
+				cust.cust_address.state_province province, 
+				cust.cust_address.country_id country_id, 
+				cust.cust_address.postal_code postal_code,
+				cust_email, get_phone_number_f(1, cust.phone_numbers) phone_number
+		FROM customers cust 
+		WHERE cust_first_name LIKE '%' || #{keyword} || '%' OR
+			cust_last_name LIKE '%' || #{keyword} || '%' OR
+			cust_email LIKE '%' || #{keyword} || '%' 
+		ORDER BY customer_id
+	</select>
+	
+	<select id="selectMaxId" resultType="int">
+		SELECT MAX(customer_id) FROM customers
+	</select>
+	
+	<select id="checkLogin" parameterType="Customer" resultType="int">
+		SELECT COUNT(customer_id) FROM customers 
+		WHERE cust_user_name = #{customerUserName}
+			AND password = #{customerPassword}
+	</select>
+	
+	<select id="isExistentUserName" parameterType="String" resultType="int">
+		SELECT COUNT(customer_id) FROM customers WHERE cust_user_name = #{userName}
+	</select>
+	
+	<select id="selectCustomerId" parameterType="String" resultType="int">
+		SELECT customer_id FROM customers WHERE cust_user_name = #{userName}
+	</select>
+	
+	<insert id="insertCustomer" parameterType="Customer">
+		INSERT INTO customers 
+			(customer_id, cust_user_name, password, cust_first_name, cust_last_name, 
+			cust_address, phone_numbers, cust_email, gender, date_of_birth) 
+		VALUES (#{customerId}, #{customerUserName}, #{customerPassword}, 
+			#{customerFirstName}, #{customerLastName}, 
+			cust_address_typ(#{streetAddress}, #{postalCode}, #{city}, #{stateProvince}, #{countryId}), 
+			phone_list_typ(#{phoneNumber}), #{customerEmail}, #{gender}, #{dateOfBirth})
+	</insert>
+	
+	<delete id="deleteCustomer" parameterType="int">
+		DELETE FROM customers WHERE customer_id = #{customerId}
+	</delete>
+	
+	<update id="updateCustomerByCustomer" parameterType="Customer">
+		UPDATE customers SET 
+			cust_first_name=#{customerFirstName}, cust_last_name=#{customerLastName}, 
+			cust_address=cust_address_typ(
+				#{streetAddress}, #{postalCode}, #{city}, #{stateProvince}, #{countryId}), 
+			phone_numbers = phone_list_typ(#{phoneNumber}),
+			cust_email = #{customerEmail}, date_of_birth = #{dateOfBirth}, gender = #{gender}
+		WHERE customer_id = #{customerId}
+	</update>
+	
+	<update id="updateCustomerByAdmin" parameterType="Customer">
+		UPDATE customers SET 
+			nls_language=#{nlsLanguage}, nls_territory=#{nlsTerritory}, 
+			credit_limit=#{creditLimit}, account_mgr_id=#{accountMgrId},
+			marital_status=#{maritalStatus}, income_level = #{incomeLevel}
+		WHERE customer_id = #{customerId}
+	</update>
+	
+	<update id="changePasswd" parameterType="Customer">
+		UPDATE customers SET password = #{customerPassword} 
+		WHERE customer_id = #{customerId}
+	</update>
+	
+	<!-- ResultMaps -->
+	<resultMap id="customerResultMap" type="Customer">
+		<id column="customer_id" jdbcType="INTEGER" property="customerId" />
+		<result column="cust_user_name" jdbcType="VARCHAR" property="customerUserName" />
+		<result column="cust_first_name" jdbcType="VARCHAR" property="customerFirstName" />
+		<result column="cust_last_name" jdbcType="VARCHAR" property="customerLastName" />
+		<result column="street_addr" jdbcType="VARCHAR" property="streetAddress" />
+		<result column="city" jdbcType="VARCHAR" property="city" />
+		<result column="postal_code" jdbcType="VARCHAR" property="postalCode" />
+		<result column="province" jdbcType="VARCHAR" property="stateProvince" />
+		<result column="country_id" jdbcType="CHAR" property="countryId" />
+		<result column="phone_number" jdbcType="VARCHAR" property="phoneNumber" />
+		<result column="nls_language" jdbcType="VARCHAR" property="nlsLanguage" />
+		<result column="nls_territory" jdbcType="VARCHAR" property="nlsTerritory" />
+		<result column="credit_limit" jdbcType="DOUBLE" property="creditLimit" />
+		<result column="cust_email" jdbcType="VARCHAR" property="customerEmail" />
+		<result column="account_mgr_id" jdbcType="INTEGER" property="accountMgrId" />
+		<result column="date_of_birth" jdbcType="DATE" property="dateOfBirth" />
+		<result column="marital_status" jdbcType="VARCHAR" property="maritalStatus" />
+		<result column="gender" jdbcType="VARCHAR" property="gender" />
+		<result column="income_level" jdbcType="VARCHAR" property="incomeLevel" />
+	</resultMap>
+	
+	<resultMap id="customerListResultMap" type="Customer">
+	<id column="customer_id" jdbcType="INTEGER" property="customerId" />
+		<result column="cust_first_name" jdbcType="VARCHAR" property="customerFirstName" />
+		<result column="cust_last_name" jdbcType="VARCHAR" property="customerLastName" />
+		<result column="phone_number" jdbcType="VARCHAR" property="phoneNumber" />
+		<result column="cust_email" jdbcType="VARCHAR" property="customerEmail" />
+		<result column="street_addr" jdbcType="VARCHAR" property="streetAddress" />
+		<result column="city" jdbcType="VARCHAR" property="city" />
+		<result column="postal_code" jdbcType="VARCHAR" property="postalCode" />
+		<result column="province" jdbcType="VARCHAR" property="stateProvince" />
+		<result column="country_id" jdbcType="CHAR" property="countryId" />
+	</resultMap>
+</mapper>

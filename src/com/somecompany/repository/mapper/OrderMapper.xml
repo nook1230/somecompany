@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.somecompany.repository.mapper.OrderMapper">
+	
+	<!-- sql statements -->
+	
+	<select id="selectCount" resultType="int">
+		SELECT COUNT(*) FROM orders
+	</select>
+	
+	<select id="selectCountByCustomerId" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM orders WHERE customer_id = #{customerId}
+	</select>
+	
+	<select id="selectCountByOrderStatus" parameterType="short" resultType="int">
+		SELECT COUNT(*) FROM orders WHERE order_status = #{orderStatus}
+	</select>
+	
+	<select id="selectOrder" parameterType="int" resultMap="OrderResultMap">
+		SELECT o.order_id, o.order_date, o.order_mode, o.customer_id, 
+				c.cust_first_name || ' ' || c.cust_last_name cust_name,
+				o.order_status, o.order_total, o.sales_rep_id, 
+				c.cust_address.street_address || ', ' || c.cust_address.city 
+				|| ', ' || c.cust_address.state_province || ', ' || 
+				c.cust_address.country_id cust_addr, 
+				o.sales_rep_id, o.promotion_id, 
+				get_phone_number_f(1, c.phone_numbers) phone_number 
+		FROM orders o, customers c 
+		WHERE o.customer_id = c.customer_id AND o.order_id = #{orderId}
+	</select>
+	
+	<select id="selectOrderItems" parameterType="int" resultMap="OrderItemsResultMap">
+		SELECT i.line_item_id, i.product_id, p.product_name, i.unit_price, i.quantity 
+		FROM order_items i, product_information p 
+		WHERE i.product_id = p.product_id AND i.order_id = #{orderId}
+		ORDER BY i.line_item_id
+	</select>
+	
+	<select id="selectListByCustomerId" parameterType="int" resultMap="OrderResultMap">
+		SELECT order_id, order_date, order_mode, order_total, order_status 
+		FROM orders WHERE customer_id = #{customerId} ORDER BY order_date DESC
+	</select>
+	
+	<select id="selectOrderIdByCustomerId" parameterType="int" resultType="int">
+		SELECT order_id	FROM orders WHERE customer_id = #{customerId}
+	</select>
+		
+	<select id="selectListAll" resultMap="OrderResultMap">
+		SELECT order_id, order_date, order_mode, order_total, order_status 
+		FROM orders ORDER BY order_date DESC
+	</select>
+	
+	<select id="selectList" parameterType="short" resultMap="OrderResultMap">
+		SELECT order_id, order_date, order_mode, order_total, order_status 
+		FROM orders WHERE order_status = #{orderStatus}		
+		ORDER BY order_date DESC
+	</select>
+	
+	<insert id="insertOrder" parameterType="Order">
+		INSERT INTO orders 
+			(order_id, order_date, order_mode, customer_id, 
+			order_status, order_total) 
+		VALUES (#{orderId}, SYSDATE, #{orderMode}, #{customerId}, 
+			#{orderStatus}, #{orderTotal})
+	</insert>
+	
+	<insert id="insertOrderItem" parameterType="OrderItem">
+		INSERT INTO order_items 
+			(order_id, line_item_id, product_id, unit_price, quantity) 
+		VALUES (#{orderId}, #{lineItemId}, #{productId}, #{unitPrice}, #{quantity})
+	</insert>
+	
+	<select id="selectMaxId" resultType="int">
+		SELECT MAX(order_id) FROM orders
+	</select>
+	
+	<select id="selectMinId" resultType="int">
+		SELECT MIN(order_id) FROM orders
+	</select>
+	
+	<delete id="deleteOrder" parameterType="int">
+		DELETE FROM orders WHERE order_id = #{orderId}
+	</delete>
+	
+	<delete id="deleteOrderItems" parameterType="int">
+		DELETE FROM order_items WHERE order_id = #{orderId}
+	</delete>
+	
+	<delete id="deleteOrderItemsByLineItemId" parameterType="OrderItem">
+		DELETE FROM order_items WHERE order_id = #{orderId} 
+			AND line_item_id = #{lineItemId}
+	</delete>
+		
+	<update id="updateOrderStatus" parameterType="Order">
+		UPDATE orders SET order_status = #{orderStatus} WHERE order_id = #{orderId}
+	</update>
+	
+	<update id="updateInventoryQty" parameterType="Warehouse">
+		UPDATE inventories SET quantity_on_hand = #{quantity}
+		WHERE product_id = #{productId} AND warehouse_id = #{warehouseId}
+	</update>
+	
+	<select id="selectOrderStatus" parameterType="int" resultType="short">
+		SELECT order_status FROM orders WHERE order_id = #{orderId}
+	</select>
+	
+	<select id="selectWarehouses" parameterType="int" resultMap="WarehousesResultMap">
+		SELECT * FROM warehouses WHERE warehouse_id = #{warehouseId}
+	</select>
+	
+	<select id="selectWarehouseIds" resultType="int">
+		SELECT warehouse_id FROM warehouses
+	</select>
+	
+	<select id="selectQuantity" parameterType="Warehouse" 
+			resultType="long">
+		SELECT quantity_on_hand FROM inventories 
+		WHERE product_id = #{productId} AND warehouse_id = #{warehouseId}
+	</select>
+	
+	<select id="selectQuantityCount" parameterType="Warehouse" 
+			resultType="int">
+		SELECT COUNT(quantity_on_hand) FROM inventories 
+		WHERE product_id = #{productId} AND warehouse_id = #{warehouseId}
+	</select>
+	
+	<update id="updateOrder" parameterType="Order">
+		UPDATE orders SET 
+			order_mode = #{orderMode}, 
+			sales_rep_id = #{salesRepId},
+			promotion_id = #{promotionId}
+		WHERE order_id = #{orderId}
+	</update>
+	
+	<!-- ResultMaps -->
+	
+	<resultMap id="OrderResultMap" type="Order">
+		<id column="order_id" jdbcType="INTEGER" property="orderId" />
+		<result column="order_date" jdbcType="TIMESTAMP" property="orderDate" 
+				typeHandler="com.somecompany.repository.mapper.typehandler.TimestampTypeHandler"  />
+		<result column="order_mode" jdbcType="VARCHAR" property="orderMode" />
+		<result column="customer_id" jdbcType="INTEGER" property="customerId" />
+		<result column="cust_name" jdbcType="VARCHAR" property="customerName" />
+		<result column="cust_addr" jdbcType="VARCHAR" property="customerAddress" />
+		<result column="phone_number" jdbcType="VARCHAR" property="phoneNumber" />
+		<result column="order_status" jdbcType="TINYINT" property="orderStatus" />
+		<result column="order_total" jdbcType="DOUBLE" property="orderTotal" />
+		<result column="sales_rep_id" jdbcType="INTEGER" property="salesRepId" />
+		<result column="promotion_id" jdbcType="INTEGER" property="promotionId" />
+	</resultMap>
+	
+	<resultMap id="OrderItemsResultMap" type="OrderItem">
+		<result column="order_id" jdbcType="INTEGER" property="orderId" />
+		<result column="line_item_id" jdbcType="INTEGER" property="lineItemId" />
+		<result column="product_id" jdbcType="INTEGER" property="productId" />
+		<result column="product_name" jdbcType="VARCHAR" property="productName" />
+		<result column="unit_price" jdbcType="DOUBLE" property="unitPrice" />
+		<result column="quantity" jdbcType="BIGINT" property="quantity" />
+	</resultMap>
+	
+	<resultMap id="WarehousesResultMap" type="Warehouse">
+		<result column="warehouse_id" jdbcType="INTEGER" property="warehouseId" />
+		<result column="warehouse_name" jdbcType="VARCHAR" property="warehouseName" />
+		<result column="location_id" jdbcType="INTEGER" property="locationId" />
+	</resultMap>
+	
+</mapper>
